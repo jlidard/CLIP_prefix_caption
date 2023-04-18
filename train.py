@@ -12,7 +12,7 @@ import argparse
 import json
 from typing import Tuple, Optional, Union
 
-from utils import load_tokenizer_from_cache
+from utils import load_tokenizer_from_cache, load_gpt_from_cache
 
 
 class MappingType(Enum):
