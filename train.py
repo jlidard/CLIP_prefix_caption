@@ -3,7 +3,7 @@ import torch.nn as nn
 from torch.nn import functional as nnf
 from torch.utils.data import Dataset, DataLoader
 from enum import Enum
-from transformers import GPT2Tokenizer, GPT2LMHeadModel, AdamW, get_linear_schedule_with_warmup
+from transformers import GPT2Tokenizer, GPT2LMHeadModel, AdamW, get_linear_schedule_with_warmup, PreTrainedTokenizer
 from tqdm import tqdm
 import os
 import pickle
@@ -11,6 +11,8 @@ import sys
 import argparse
 import json
 from typing import Tuple, Optional, Union
+
+from utils import load_tokenizer_from_cache
 
 
 class MappingType(Enum):
@@ -48,7 +50,7 @@ class ClipCocoDataset(Dataset):
 
     def __init__(self, data_path: str,  prefix_length: int, gpt2_type: str = "gpt2",
                  normalize_prefix=False):
-        self.tokenizer = GPT2Tokenizer.from_pretrained(gpt2_type)
+        self.tokenizer = load_tokenizer_from_cache() #GPT2Tokenizer.from_pretrained(gpt2_type)
         self.prefix_length = prefix_length
         self.normalize_prefix = normalize_prefix
         with open(data_path, 'rb') as f:
@@ -237,7 +239,7 @@ class ClipCaptionModel(nn.Module):
                  num_layers: int = 8, mapping_type: MappingType = MappingType.MLP):
         super(ClipCaptionModel, self).__init__()
         self.prefix_length = prefix_length
-        self.gpt = GPT2LMHeadModel.from_pretrained('gpt2')
+        self.gpt = load_gpt_from_cache() #GPT2LMHeadModel.from_pretrained('gpt2')
         self.gpt_embedding_size = self.gpt.transformer.wte.weight.shape[1]
         if mapping_type == MappingType.MLP:
             self.clip_project = MLP((prefix_size, (self.gpt_embedding_size * prefix_length) // 2,
